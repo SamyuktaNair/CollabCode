@@ -1,0 +1,43 @@
+export const languages = [
+  { value: "javascript", label: "JavaScript" },
+  { value: "typescript", label: "TypeScript" },
+  { value: "python", label: "Python" },
+  { value: "java", label: "Java" },
+  { value: "c", label: "C" },
+  { value: "c++", label: "C++" },          
+  { value: "go", label: "Go" },
+  { value: "php", label: "PHP" },
+  { value: "ruby", label: "Ruby" },
+  { value: "swift", label: "Swift" },
+  { value: "kotlin", label: "Kotlin" },
+  { value: "rust", label: "Rust" },
+  { value: "dart", label: "Dart" },
+  { value: "scala", label: "Scala" },
+  { value: "perl", label: "Perl" },
+  { value: "rscript", label: "R" },        
+  { value: "haskell", label: "Haskell" },
+  { value: "elixir", label: "Elixir" },
+];
+
+export const runtimeVersions = {
+  javascript: "18.15.0",
+  typescript: "5.0.3",
+  python: "3.10.0",
+  java: "15.0.2",
+  c: "10.2.0",
+  "c++": "10.2.0",        
+  go: "1.16.2",
+  php: "8.2.3",
+  ruby: "3.0.1",
+  swift: "5.3.3",
+  kotlin: "1.8.20",
+  rust: "1.68.2",
+  dart: "2.19.6",
+  scala: "3.2.2",
+  perl: "5.36.0",
+  rscript: "4.1.1",       
+  haskell: "9.0.1",
+  elixir: "1.11.3",
+};
+
+  
