@@ -3,7 +3,8 @@ import http from "http";
 import {Server} from "socket.io"
 import cors from "cors"
 import axios from "axios";
-
+import Redis from "ioredis";
+import {createAdapter} from "@socket.io/redis-adapter"
 
 const app=express();
 
@@ -17,48 +18,87 @@ const io=new Server(server,{
     }
 })
 
-const rooms=new Map()
+const pubClient=new Redis();
+const subClient=pubClient.duplicate();
+
+pubClient.on("error", (err) => console.error("Redis pubClient error:", err));
+subClient.on("error", (err) => console.error("Redis subClient error:", err));
+
+io.adapter(createAdapter(pubClient,subClient))
+const redis=new Redis();
+
+// const rooms=new Map()
+
+async function addUserToRoom(roomId,userName){
+    const roomKey=`room:${roomId}:users`;
+    await redis.sadd(roomKey,userName);
+}
+
+async function removeUserFromRoom(roomId,userName){
+    const roomKey=`room:${roomId}:users`;
+    await redis.srem(roomKey,userName);
+}
+
+async function getUsersInRoom(roomId){
+    const roomKey=`room:${roomId}:users`;
+    return await redis.smembers(roomKey);
+    
+}
+
+async function saveCode(roomId,code){
+    await redis.hset(`room:${roomId}`, "code", code);
+}
+
+async function getCode(roomId){
+    return await redis.hget(`room:${roomId}`,"code") || "";
+}
+
+async function saveOutput(roomId,output){
+    await redis.hset(`room:${roomId}`,"output",output);
+}
 
 io.on("connection",(socket)=>{
     console.log("User connected",socket.id)
 
     let currentRoom=null;
     let currentUser=null;
-    socket.on("join",({roomId,userName})=>{
+    socket.on("join",async({roomId,userName})=>{
         if(currentRoom){
             socket.leave(currentRoom);
-            rooms.get(currentRoom).users.delete(currentUser)
-            io.to(currentRoom).emit("UserJoined",Array.from(rooms.get(currentRoom).users))
+            await removeUserFromRoom(currentRoom,currentUser);
+            const users=await getUsersInRoom(currentRoom);
+            io.to(currentRoom).emit("UserJoined",users)
         }
 
         currentRoom=roomId;
         currentUser=userName;
 
         socket.join(roomId)
-        if(!rooms.has(roomId)){
-            rooms.set(roomId,{users:new Set(),code:""})
-        }
-        rooms.get(roomId).users.add(userName)
-        socket.emit("codeUpdate",rooms.get(roomId).code)
-        io.to(roomId).emit("UserJoined", Array.from(rooms.get(currentRoom).users))
+        
+        await addUserToRoom(roomId,userName);
+        const code=await getCode(roomId);
+        socket.emit("codeUpdate",code);
+
+        const users=await getUsersInRoom(roomId);
+        io.to(roomId).emit("UserJoined",users)
     })
 
 
-    socket.on("code-change",({roomId,code})=>{
-        if(rooms.has(roomId)){
-            rooms.get(roomId).code=code;
-        }
+    socket.on("code-change",async ({roomId,code})=>{
+        await saveCode(roomId,code);
         socket.to(roomId).emit("codeUpdate",code)
     })
 
-    socket.on("leaveRoom",()=>{
+    socket.on("leaveRoom",async ()=>{
         if (currentRoom && currentUser){
-            rooms.get(currentRoom).users.delete(currentUser);
-            io.to(currentRoom).emit("UserJoined",Array.from(rooms.get(currentRoom).users));
+            await removeUserFromRoom(currentRoom, currentUser);
+            const users = await getUsersInRoom(currentRoom);
+            io.to(currentRoom).emit("UserJoined", users);
 
             socket.leave(currentRoom);
-            currentRoom=null;
-            currentUser=null;
+            currentRoom = null;
+            currentUser = null;
+
         }
     })
 
@@ -71,8 +111,8 @@ io.on("connection",(socket)=>{
     })
 
     socket.on("compileCode",async({code,roomId,language,version,input})=>{
-        if(rooms.has(roomId)){
-            const room=rooms.get(roomId)
+        try{
+            
             const response= await axios.post("https://emkc.org/api/v2/piston/execute",{
                 language,
                 version,
@@ -84,15 +124,20 @@ io.on("connection",(socket)=>{
                 stdin:input
             })
 
-            room.output=response.data.run.output;
+            await saveOutput(roomId,response.data.run .output);
             io.to(roomId).emit("codeResponse",response.data)
+        }
+        catch(err){
+            console.error("Error compiling code:",err);
+            socket.emit("codeResponse", { run: { output: "Compilation failed." } });
         }
     })
 
-    socket.on("disconnect",()=>{
+    socket.on("disconnect",async ()=>{
         if(currentRoom && currentUser){
-            rooms.get(currentRoom).users.delete(currentUser);
-            io.to(currentRoom).emit("UserJoined",Array.from(rooms.get(currentRoom).users))
+            await removeUserFromRoom(currentRoom,currentUser);
+            const users=await getUsersInRoom(currentRoom);
+            io.to(currentRoom).emit("UserJoined",users)
         }
         console.log("User Disconnected")
     })
