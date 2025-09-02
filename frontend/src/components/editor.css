@@ -24,5 +24,35 @@
   .button:hover {
     background: #005a9e;
   }
+  .output-section pre{
+    height: 120px;
+  }
 
- 
+
+ .toggle-button{
+  background: #007acc;  
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    margin: 5px;
+ }
+ .custom-input {
+  width: 100%;
+  height: 120px;
+  background: #1e1e1e;       /* same as output panel */
+  color: #ffffff;
+  border: 1px solid #444;    /* subtle border like output */
+  border-radius: 6px;
+  padding: 10px;
+  font-family: "Consolas", "Courier New", monospace; /* code font */
+  font-size: 14px;
+  resize: vertical;          /* let user resize vertically only */
+  outline: none;
+  box-sizing: border-box;
+}
+
+.custom-input:focus {
+  border-color: #007acc;     /* VSCode blue focus */
+}

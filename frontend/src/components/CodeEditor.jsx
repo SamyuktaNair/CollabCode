@@ -14,6 +14,7 @@ const CodeEditor = ({roomId,userName}) => {
     const [language,setLanguage]=useState('javascript')
     const [output,setOutput]=useState("")
     const [input,setUserInput]=useState("")
+    const [toggle,setToggle]=useState(true)
 
     
     useEffect(()=>{
@@ -96,12 +97,31 @@ const CodeEditor = ({roomId,userName}) => {
         onMount={onMount}
       />
         </div>
-    
+        <div className="parent">
 
-    <div className="output-section">
-      <h3>Output:</h3>
-      <pre>{output || "Run your code to see output..."}</pre>
-    </div>
+          <button className='toggle-button' onClick={()=>setToggle(!toggle)}>{toggle ? "Custom Input" : "Output"}</button>
+    
+          {toggle ? 
+            <div className="output-section">
+            <h3>Output:</h3>
+            <pre>{output || "Run your code to see output..."}</pre>
+          </div> :
+
+            <div className="input-section">
+            <h3>Custom Input:</h3>
+            <textarea
+              value={input}
+              className='custom-input'
+              onChange={(e) => setUserInput(e.target.value)}
+              placeholder="Enter custom input for your code here..."
+            />
+          </div>
+
+          }
+          
+        </div>
+      
+    
     </>
     
     )
