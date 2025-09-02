@@ -1,0 +1,28 @@
+.editor-wrapper {
+    flex: 1;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .header{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .button{
+    background: #007acc;  
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+  .button:hover {
+    background: #005a9e;
+  }
+
+ 

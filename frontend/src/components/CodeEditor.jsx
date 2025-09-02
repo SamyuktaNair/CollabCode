@@ -5,6 +5,7 @@ import { boilerplates } from './boilerplate'
 import io from "socket.io-client"
 import socket from '../socket'
 import { runtimeVersions } from './languages'
+import "./editor.css"
 
 // const socket=io("http://localhost:5001")
 const CodeEditor = ({roomId,userName}) => {
@@ -74,11 +75,18 @@ const CodeEditor = ({roomId,userName}) => {
 
     return (
         <>
-        <LanguageSelect language={language} setLanguage={handleLanguageChange}/>
+        <div className="header">
+          <LanguageSelect language={language} setLanguage={handleLanguageChange}/>
+          <button className='button' onClick={runCode} >
+            Run Code
+          </button>
+        </div>
         
-        <div style={{ height: '90vh', width:'90vh'}}>
+        
+        <div className="editor-wrapper">
       <Editor
         height="100%"
+        width="100%"
         theme="vs-dark"
         language={language}
         //defaultLanguage="javascript"
@@ -87,23 +95,13 @@ const CodeEditor = ({roomId,userName}) => {
         onChange={handleChange}
         onMount={onMount}
       />
-    </div>
-    <button onClick={runCode} >
-          Run Code
-    </button>
+        </div>
+    
 
-    <div style={{
-                    height: '90vh',
-                    width: '40vh',
-                    background: "#1e1e1e",
-                    color: "#fff",
-                    padding: "10px",
-                    borderRadius: "8px",
-                    overflowY: "auto"
-                }}>
-                    <h3>Output:</h3>
-                    <pre>{output || "Run your code to see output..."}</pre>
-      </div>
+    <div className="output-section">
+      <h3>Output:</h3>
+      <pre>{output || "Run your code to see output..."}</pre>
+    </div>
     </>
     
     )

@@ -82,30 +82,35 @@ function App() {
   
   return (
     <>
+    <div className='app-layout'>
     <div className="sidebar">
-      <div className="room-info">
-        <h2>Room Id :{roomId}</h2>
-        <button onClick={copyId}>Copy Id</button>
-        {copySuccess && <span className='copy-success'>Copied to Clipboard !!</span>}
+      <div className="sidebar-section room-info">
+        <h2 className="sidebar-title">Room ID</h2>
+        <p className="room-id">{roomId}</p>
+        <button className="copy-btn" onClick={copyId}>Copy ID</button>
+        {copySuccess && <span className="copy-success">{copySuccess}</span>}
       </div>
-      <div className="user-info">
-      <h3>Users in Room:</h3>
-        <ul>
-          {
-            users.map((user,index)=>
-              <li key={index}>{user}</li>
-            )
-          }
-        </ul>
-      <p className='typing'>{typing}</p>
-      </div>
-      <button className='leave' onClick={leaveRoom}>Leave Room</button>
-      
 
-    </div>
+      <div className="sidebar-section user-info">
+        <h3 className="sidebar-title">Users in Room</h3>
+        <ul className="user-list">
+          {users.map((user,index)=>
+            <li key={index} className="user-item">{user}</li>
+          )}
+        </ul>
+        <p className="typing">{typing}</p>
+  </div>
+
+  <div className="sidebar-section">
+    <button className="leave-btn" onClick={leaveRoom}>Leave Room</button>
+  </div>
+  </div>
     <div className='window'>
       <CodeEditor roomId={roomId} userName={userName}/>
     </div>
+    </div>
+
+    
     
     </>
     
